@@ -1,0 +1,51 @@
+version: "3.3"
+
+services:
+  php-fpm:
+    build:
+      context: ./docker/dev
+      dockerfile: php-fpm.dockerfile
+    volumes:
+      - .:/var/www/app
+      - ./docker/dev/php-fpm.conf:/usr/local/etc/php-fpm.d/app.conf
+      - ./docker/dev/php.ini:/usr/local/etc/php/php.ini
+      - php-socks:/var/run/php-fpm
+    depends_on:
+      - postgres
+  nginx:
+    build:
+      context: ./docker/dev
+      dockerfile: nginx.dockerfile
+    volumes:
+    - ./app:/var/www/app
+    - ./docker/dev/nginx-app.conf:/etc/nginx/conf.d/api.conf
+    - php-socks:/var/run/php-fpm
+    depends_on:
+      - php-fpm
+    ports:
+      - 8000:8000
+    restart: always
+  postgres:
+    build:
+      context: ./docker/dev
+      dockerfile: postgres.dockerfile
+    volumes:
+      - postgres:/var/lib/postgresql/data/pgdata/app
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata/app
+      restart: always
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - 8010:80
+volumes:
+  php-socks:
+  postgres:

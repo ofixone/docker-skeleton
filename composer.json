@@ -1,0 +1,10 @@
+{
+  "name": "ofixone/docker-skeleton",
+  "description": "Docker Skeleton",
+  "keywords": [
+    "docker",
+    "template"
+  ],
+  "type": "project",
+  "license": "BSD-3-Clause"
+}
